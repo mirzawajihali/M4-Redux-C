@@ -1,13 +1,16 @@
 import React from 'react';
-import { Button } from './components/ui/button';
+
+import Navbar from './layout/Navbar';
+import { Outlet } from 'react-router-dom';
+import Footer from './layout/Footer';
 
 const App = () => {
   return (
     <div>
 
-        <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button>Click me</Button>
-    </div>
+     <Navbar/>
+     <Outlet/>
+     <Footer/>
     </div>
   );
 };
