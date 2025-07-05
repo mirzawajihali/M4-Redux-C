@@ -22,7 +22,39 @@ const BookDetails: React.FC<BookDetailsProps> = () => {
   const books = useAppSelector(selectBook);
  
   const book = books.find((book: IBook) => book.id === id);
+
+   if (!book) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <Button 
+          variant="ghost" 
+          onClick={() => navigate(-1)}
+          className="mb-6"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Books
+        </Button>
+        <Card className="bg-white shadow-lg border-0 ring-1 ring-gray-200">
+          <CardContent className="py-12 text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Book Not Found</h2>
+            <p className="text-gray-600 mb-6">The book you're looking for doesn't exist.</p>
+            <Button onClick={() => navigate('/')}>
+              Return to Books
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
  const {  title, author, genre, description, isbn, copies, availability } = book;
+
+  const handleDelete = () => {
+    if (id && window.confirm('Are you sure you want to delete this book?')) {
+      dispatch(deleteBook(id));
+      navigate('/');
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <Button 
@@ -116,10 +148,7 @@ const BookDetails: React.FC<BookDetailsProps> = () => {
             <Button 
               variant="destructive" 
               className="flex-1"
-              onClick={() => {
-                dispatch(deleteBook(id));
-                navigate('/');
-              }}
+             onClick={handleDelete}
             >
               Delete Book
             </Button>
