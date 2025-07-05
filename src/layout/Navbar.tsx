@@ -9,8 +9,8 @@ const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { name: 'All Books', href: '/books' },
-    { name: 'Add Book', href: '/add-book' },
+    { name: 'All Books', href: '/' },
+    { name: 'Add Book', href: '/create-book' },
     { name: 'Borrow Summary', href: '/borrow-summary' },
   ];
 

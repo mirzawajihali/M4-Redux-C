@@ -78,12 +78,9 @@ const bookSlice = createSlice({
   name: 'book',
 initialState,
 reducers:{
-    addTask : (state, action : PayloadAction<IBook>) => {
-        const bookData ={
-            ...action.payload,
-            id: Math.random().toString(),
-        }
-        state.book.push(bookData);
+    addBook : (state, action : PayloadAction<IBook>) => {
+       
+        state.book.push(action.payload);
     },
     setFilter: (state, action: PayloadAction<'all' | 'available' | 'unavailable'>) => {
         state.filter = action.payload;
@@ -98,6 +95,6 @@ export const selectFilter = (state: RootState) => {
     return state.book.filter
 };
 
-export const{ addTask, setFilter} = bookSlice.actions;
+export const{ addBook, setFilter} = bookSlice.actions;
 
 export default bookSlice.reducer;
