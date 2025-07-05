@@ -28,7 +28,7 @@ const updateBookSchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters').max(500, 'Description must be less than 500 characters'),
   isbn: z.string().min(10, 'ISBN must be at least 10 characters').max(25, 'ISBN must be less than 20 characters'),
   copies: z.coerce.number().min(0, 'Copies cannot be negative').max(100, 'Cannot exceed 100 copies'),
-  availability: z.boolean(),
+  available: z.boolean(),
 });
 
 type UpdateBookFormData = z.infer<typeof updateBookSchema>;
@@ -55,7 +55,7 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
       description: book.description,
       isbn: book.isbn,
       copies: book.copies,
-      availability: book.availability,
+      available: book.available,
     },
   });
 
@@ -63,7 +63,7 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
     const updatedBook: IBook = {
       ...book,
       ...data,
-      availability: data.copies > 0,
+      available: data.copies > 0,
     };
 
     dispatch(updateBook(updatedBook));
@@ -174,14 +174,14 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
               )}
             </div>
 
-            {/* Availability - Read only, auto-calculated */}
+            {/* available - Read only, auto-calculated */}
             <div className="space-y-2">
-              <Label htmlFor="availability">Availability</Label>
+              <Label htmlFor="available">available</Label>
               <div className="flex items-center space-x-2">
                 <input
-                  id="availability"
+                  id="available"
                   type="checkbox"
-                  {...register("availability")}
+                  {...register("available")}
                   className="h-4 w-4 rounded border-gray-300"
                 />
                 <span className="text-sm text-gray-600">
@@ -189,7 +189,7 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
                 </span>
               </div>
               <p className="text-xs text-gray-500">
-                Note: Availability will be automatically set based on the number of copies
+                Note: available will be automatically set based on the number of copies
               </p>
             </div>
           </div>

@@ -14,7 +14,7 @@ interface BookCardProps {
 }
 
 const BookCard: React.FC<BookCardProps> = ({ props }) => {
-  const { title, author, genre, description, isbn, copies, availability } = props;
+  const { title, author, genre, description, isbn, copies, available } = props;
   const dispatch = useAppDispatch();
 
   return (
@@ -31,10 +31,10 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
             </CardDescription>
           </div>
           <Badge 
-            variant={availability ? "default" : "destructive"}
+            variant={available ? "default" : "destructive"}
             className="ml-2"
           >
-            {availability ? "Available" : "Out of Stock"}
+            {available ? "Available" : "Out of Stock"}
           </Badge>
         </div>
       </CardHeader>
@@ -67,7 +67,7 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
             variant="default" 
             size="sm" 
             className="flex-1"
-            disabled={!availability}
+            disabled={!available}
           >
             <BookOpen className="w-4 h-4 mr-2" />
             Borrow
@@ -78,7 +78,7 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
            <UpdateBookModal book={props}/>
           </div>
          
-         <Link to={`/book/${props.id}`}>
+         <Link to={`/book/${props._id}`}>
           <Button 
             variant="outline" 
             size="sm" 
@@ -91,7 +91,7 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
             variant="destructive" 
             size="sm" 
             className="flex-1"
-            onClick={()=> dispatch(deleteBook(props.id))} // Assuming deleteBook is an action creator
+            onClick={()=> dispatch(deleteBook(props._id))} // Assuming deleteBook is an action creator
 
           >
             Delete

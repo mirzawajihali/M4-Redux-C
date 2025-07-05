@@ -21,7 +21,7 @@ const BookDetails: React.FC<BookDetailsProps> = () => {
   
   const books = useAppSelector(selectBook);
  
-  const book = books.find((book: IBook) => book.id === id);
+  const book = books.find((book: IBook) => book._id === id);
 
    if (!book) {
     return (
@@ -46,7 +46,7 @@ const BookDetails: React.FC<BookDetailsProps> = () => {
       </div>
     );
   }
- const {  title, author, genre, description, isbn, copies, availability } = book;
+ const {  title, author, genre, description, isbn, copies, available } = book;
 
   const handleDelete = () => {
     if (id && window.confirm('Are you sure you want to delete this book?')) {
@@ -83,8 +83,8 @@ const BookDetails: React.FC<BookDetailsProps> = () => {
                   <Tag className="w-4 h-4 mr-1" />
                   {genre}
                 </Badge>
-                <Badge variant={availability ? "default" : "destructive"}>
-                  {availability ? "Available" : "Out of Stock"}
+                <Badge variant={available ? "default" : "destructive"}>
+                  {available ? "Available" : "Out of Stock"}
                 </Badge>
                 
               </div>
@@ -122,11 +122,11 @@ const BookDetails: React.FC<BookDetailsProps> = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Available Now</span>
-                    <span className="font-medium">{availability ? copies : 0}</span>
+                    <span className="font-medium">{available ? copies : 0}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">On Loan</span>
-                    <span className="font-medium">{copies - (availability ? copies : 0)}</span>
+                    <span className="font-medium">{copies - (available ? copies : 0)}</span>
                   </div>
                 </div>
               </div>
@@ -139,7 +139,7 @@ const BookDetails: React.FC<BookDetailsProps> = () => {
             <Button 
               variant="default" 
               className="flex-1"
-              disabled={!availability}
+              disabled={!available}
             >
               <BookOpen className="w-4 h-4 mr-2" />
               Borrow This Book

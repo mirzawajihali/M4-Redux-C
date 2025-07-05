@@ -1,39 +1,78 @@
 import React, { useState } from 'react';
 import BookCard from '@/components/module/books/BookCard';
-import { selectBook, selectFilter, setFilter } from '@/redux/features/book/bookSlice';
+import { selectFilter, setFilter } from '@/redux/features/book/bookSlice';
 import { useAppSelector, useAppDispatch } from '@/redux/hooks';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, BookOpen, Plus } from 'lucide-react';
+import type { IBook } from '@/types';
+import { Link } from 'react-router-dom';
+import { useGetBooksQuery, extractBooks } from '@/redux/api/baseApi';
 
 const Books: React.FC = () => {
-  const books = useAppSelector(selectBook);
+  const { data: booksData, isLoading, isError, error } = useGetBooksQuery();
   const currentFilter = useAppSelector(selectFilter);
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('all');
 
-  // Get unique genres for filter
-  const genres = Array.from(new Set(books.map(book => book.genre)));
+  // Handle loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4 animate-pulse" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading books...</h3>
+            <p className="text-gray-600">Please wait while we fetch your books</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // Filter books based on search term, genre, and availability
-  const filteredBooks = books.filter(book => {
+  // Handle error state
+  if (isError) {
+    console.error('Error fetching books:', error);
+    return (
+      <div className="min-h-screen bg-gray-50 py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center py-12">
+            <BookOpen className="w-16 h-16 text-red-300 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error loading books</h3>
+            <p className="text-gray-600">Failed to fetch books from the server. Please try again.</p>
+            <p className="text-sm text-gray-500 mt-2">Error: {error?.toString()}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Get books from API response - adjust this based on your backend response structure
+  const books: IBook[] = extractBooks(booksData);
+  console.log('API Response:', booksData);
+  console.log('Extracted books:', books);
+  
+  const genres = Array.from(new Set(books.map((book: IBook) => book.genre)));
+
+  // Filter books based on search term, genre, and available
+  const filteredBooks = books.filter((book: IBook) => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          book.genre.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesGenre = selectedGenre === 'all' || book.genre === selectedGenre;
     
-    const matchesAvailability = currentFilter === 'all' || 
-                               (currentFilter === 'available' && book.availability) ||
-                               (currentFilter === 'unavailable' && !book.availability);
+    const matchesavailable = currentFilter === 'all' || 
+                               (currentFilter === 'available' && book.available) ||
+                               (currentFilter === 'unavailable' && !book.available);
     
-    return matchesSearch && matchesGenre && matchesAvailability;
+    return matchesSearch && matchesGenre && matchesavailable;
   });
 
-  const availableCount = books.filter(book => book.availability).length;
-  const unavailableCount = books.filter(book => !book.availability).length;
+  const availableCount = books.filter((book: IBook) => book.available).length;
+  const unavailableCount = books.filter((book: IBook) => !book.available).length;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -50,10 +89,12 @@ const Books: React.FC = () => {
                 Discover and manage your collection of {books.length} books
               </p>
             </div>
-            <Button className="bg-black text-white hover:bg-gray-800">
-              <Plus className="w-4 h-4 mr-2" />
-              Add New Book
-            </Button>
+            <Link to="/create-book">
+              <Button className="bg-black text-white hover:bg-gray-800">
+                <Plus className="w-4 h-4 mr-2" />
+                Add New Book
+              </Button>
+            </Link>
           </div>
 
           {/* Stats */}
@@ -94,7 +135,7 @@ const Books: React.FC = () => {
               >
                 All Genres
               </Button>
-              {genres.map(genre => (
+              {genres.map((genre: string) => (
                 <Button
                   key={genre}
                   variant={selectedGenre === genre ? 'default' : 'outline'}
@@ -108,10 +149,10 @@ const Books: React.FC = () => {
             </div>
           </div>
 
-          {/* Availability Filter */}
+          {/* available Filter */}
           <div className="flex gap-2 flex-wrap items-center">
             <Filter className="w-4 h-4 text-gray-500 mt-1" />
-            <span className="text-sm text-gray-600 mr-3">Filter by availability:</span>
+            <span className="text-sm text-gray-600 mr-3">Filter by available:</span>
             <div className="flex gap-2 flex-wrap">
               <Button
                 variant={currentFilter === 'all' ? 'default' : 'outline'}
@@ -157,8 +198,8 @@ const Books: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredBooks.map((book) => (
-              <BookCard key={book.id} props={book} />
+            {filteredBooks.map((book: IBook) => (
+              <BookCard key={book._id} props={book} />
             ))}
           </div>
         )}

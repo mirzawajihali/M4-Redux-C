@@ -17,9 +17,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Plus, Save } from 'lucide-react';
-import { useAppDispatch } from '@/redux/hooks';
-import { addBook } from '@/redux/features/book/bookSlice';
-import type { IBook } from '@/types';
+// import { useAppDispatch } from '@/redux/hooks';
+// import { addBook } from '@/redux/features/book/bookSlice';
+import { useAddBookMutation } from '@/redux/api/baseApi';
 
 // Form validation schema
 const bookSchema = z.object({
@@ -34,8 +34,8 @@ const bookSchema = z.object({
 type BookFormData = z.infer<typeof bookSchema>;
 
 const AddBooks: React.FC = () => {
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [addBook, { isLoading: isAdding }] = useAddBookMutation();
   
   const form = useForm<BookFormData>({
     resolver: zodResolver(bookSchema),
@@ -49,20 +49,23 @@ const AddBooks: React.FC = () => {
     },
   });
 
-  const onSubmit = (data: BookFormData) => {
-    const newBook: IBook = {
-      id: Math.random().toString(), 
-      ...data,
-      availability: true, 
-    };
-    
-    console.log('Adding book:', newBook);
-    dispatch(addBook(newBook));
-    form.reset();
-    
-    // Show success message and redirect
-    alert('Book added successfully!');
-    navigate('/');
+  const onSubmit = async (data: BookFormData) => {
+    try {
+      const newBook = {
+        ...data,
+        // Don't send available field, let backend handle it
+      };
+      
+      console.log('Submitting book:', newBook);
+      await addBook(newBook).unwrap();
+      
+      form.reset();
+      alert('Book added successfully!');
+      navigate('/');
+    } catch (error) {
+      console.error('Error adding book:', error);
+      alert('Failed to add book. Please try again.');
+    }
   };
 
   return (
@@ -246,10 +249,10 @@ const AddBooks: React.FC = () => {
                   <Button
                     type="submit"
                     className="flex-1 bg-black text-white hover:bg-gray-800 h-12"
-                    disabled={form.formState.isSubmitting}
+                    disabled={isAdding}
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {form.formState.isSubmitting ? 'Adding Book...' : 'Add Book'}
+                    {isAdding ? 'Adding Book...' : 'Add Book'}
                   </Button>
                   <Button
                     type="button"
