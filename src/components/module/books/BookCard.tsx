@@ -6,6 +6,7 @@ import { BookOpen, User, Package, Tag } from 'lucide-react';
 import type { IBook } from '@/types';
 import { useAppDispatch } from '@/redux/hooks';
 import { deleteBook } from '@/redux/features/book/bookSlice';
+import { Link } from 'react-router-dom';
 
 interface BookCardProps {
   props: IBook;
@@ -70,6 +71,7 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
             <BookOpen className="w-4 h-4 mr-2" />
             Borrow
           </Button>
+         <Link to={`/book/${props.id}`}>
           <Button 
             variant="outline" 
             size="sm" 
@@ -77,6 +79,7 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
           >
             Details
           </Button>
+         </Link>
           <Button 
             variant="destructive" 
             size="sm" 
