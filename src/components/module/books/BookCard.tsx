@@ -7,6 +7,7 @@ import type { IBook } from '@/types';
 import { useAppDispatch } from '@/redux/hooks';
 import { deleteBook } from '@/redux/features/book/bookSlice';
 import { Link } from 'react-router-dom';
+import { UpdateBookModal } from './UpdateBookModal';
 
 interface BookCardProps {
   props: IBook;
@@ -61,7 +62,7 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
       </CardContent>
       
       <CardFooter className="pt-4">
-        <div className="flex gap-2 w-full">
+        <div className="flex gap-2 flex-wrap w-full">
           <Button 
             variant="default" 
             size="sm" 
@@ -71,6 +72,12 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
             <BookOpen className="w-4 h-4 mr-2" />
             Borrow
           </Button>
+         
+          <div className='flex-1'>
+              
+           <UpdateBookModal book={props}/>
+          </div>
+         
          <Link to={`/book/${props.id}`}>
           <Button 
             variant="outline" 

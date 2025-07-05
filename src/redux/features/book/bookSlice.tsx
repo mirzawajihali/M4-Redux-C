@@ -88,6 +88,13 @@ reducers:{
        deleteBook: (state, action: PayloadAction<string>) => {
       state.book = state.book.filter((item) => item.id !== action.payload);
     },
+   
+    updateBook: (state, action: PayloadAction<IBook>) => {
+      const index = state.book.findIndex(book => book.id === action.payload.id);
+      if (index !== -1) {
+        state.book[index] = action.payload;
+      }
+    },
 }
 })
 
@@ -98,6 +105,6 @@ export const selectFilter = (state: RootState) => {
     return state.book.filter
 };
 
-export const{ addBook, setFilter, deleteBook} = bookSlice.actions;
+export const{ addBook,updateBook, setFilter, deleteBook} = bookSlice.actions;
 
 export default bookSlice.reducer;

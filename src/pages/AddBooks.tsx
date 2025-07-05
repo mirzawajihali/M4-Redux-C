@@ -27,7 +27,7 @@ const bookSchema = z.object({
   author: z.string().min(1, 'Author is required').max(50, 'Author name must be less than 50 characters'),
   genre: z.string().min(1, 'Genre is required').max(30, 'Genre must be less than 30 characters'),
   description: z.string().min(10, 'Description must be at least 10 characters').max(500, 'Description must be less than 500 characters'),
-  isbn: z.string().min(10, 'ISBN must be at least 10 characters').max(20, 'ISBN must be less than 20 characters'),
+  isbn: z.string().min(10, 'ISBN must be at least 10 characters').max(25, 'ISBN must be less than 20 characters'),
   copies: z.coerce.number().min(1, 'Must have at least 1 copy').max(100, 'Cannot exceed 100 copies'),
 });
 
