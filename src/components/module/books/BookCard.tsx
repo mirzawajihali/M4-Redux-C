@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, User, Package, Tag } from 'lucide-react';
 import type { IBook } from '@/types';
+import { useAppDispatch } from '@/redux/hooks';
+import { deleteBook } from '@/redux/features/book/bookSlice';
 
 interface BookCardProps {
   props: IBook;
@@ -11,6 +13,7 @@ interface BookCardProps {
 
 const BookCard: React.FC<BookCardProps> = ({ props }) => {
   const { title, author, genre, description, isbn, copies, availability } = props;
+  const dispatch = useAppDispatch();
 
   return (
     <Card className="w-full max-w-sm mx-auto bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 ring-1 ring-gray-200">
@@ -73,6 +76,15 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
             className="flex-1"
           >
             Details
+          </Button>
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            className="flex-1"
+            onClick={()=> dispatch(deleteBook(props.id))} // Assuming deleteBook is an action creator
+
+          >
+            Delete
           </Button>
         </div>
       </CardFooter>

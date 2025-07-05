@@ -84,7 +84,10 @@ reducers:{
     },
     setFilter: (state, action: PayloadAction<'all' | 'available' | 'unavailable'>) => {
         state.filter = action.payload;
-    }
+    },
+       deleteBook: (state, action: PayloadAction<string>) => {
+      state.book = state.book.filter((item) => item.id !== action.payload);
+    },
 }
 })
 
@@ -95,6 +98,6 @@ export const selectFilter = (state: RootState) => {
     return state.book.filter
 };
 
-export const{ addBook, setFilter} = bookSlice.actions;
+export const{ addBook, setFilter, deleteBook} = bookSlice.actions;
 
 export default bookSlice.reducer;
