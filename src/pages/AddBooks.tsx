@@ -74,7 +74,11 @@ const AddBooks: React.FC = () => {
       
       form.reset();
       alert('Book added successfully!');
-      navigate('/');
+      
+      // Wait a bit for the cache to update before navigating
+      setTimeout(() => {
+        navigate('/');
+      }, 100);
     } catch (error) {
       console.error('Error adding book:', error);
       alert('Failed to add book. Please try again.');

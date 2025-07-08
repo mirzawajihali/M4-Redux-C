@@ -11,11 +11,24 @@ import { Link } from 'react-router-dom';
 import { useGetBooksQuery, extractBooks } from '@/redux/api/baseApi';
 
 const Books: React.FC = () => {
-  const { data: booksData, isLoading, isError, error } = useGetBooksQuery();
+    const { data: booksData, isLoading, isError, error, refetch } = useGetBooksQuery(undefined, {
+    // Refetch every 30 seconds to ensure data is fresh
+    pollingInterval: 30000,
+    // Refetch on window focus
+    refetchOnFocus: true,
+    // Refetch when reconnecting
+    refetchOnReconnect: true,
+  });
+  
   const currentFilter = useAppSelector(selectFilter);
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGenre, setSelectedGenre] = useState('all');
+
+  // Manual refetch function
+  const handleRefresh = () => {
+    refetch();
+  };
 
   // Handle loading state
   if (isLoading) {
@@ -39,10 +52,15 @@ const Books: React.FC = () => {
       <div className="min-h-screen bg-gray-50 py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
-            <BookOpen className="w-16 h-16 text-red-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error loading books</h3>
-            <p className="text-gray-600">Failed to fetch books from the server. Please try again.</p>
-            <p className="text-sm text-gray-500 mt-2">Error: {error?.toString()}</p>
+            <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md mx-auto">
+              <BookOpen className="w-16 h-16 text-red-300 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-red-800 mb-2">Error loading books</h3>
+              <p className="text-red-600 mb-4">Failed to fetch books from the server. Please try again.</p>
+              <p className="text-sm text-red-500 mb-4">Error: {error?.toString()}</p>
+              <Button onClick={handleRefresh} variant="outline" className="border-red-300 text-red-700 hover:bg-red-50">
+                Try Again
+              </Button>
+            </div>
           </div>
         </div>
       </div>
@@ -89,12 +107,18 @@ const Books: React.FC = () => {
                 Discover and manage your collection of {books.length} books
               </p>
             </div>
-            <Link to="/create-book">
-              <Button className="bg-black text-white hover:bg-gray-800">
-                <Plus className="w-4 h-4 mr-2" />
-                Add New Book
+            <div className="flex gap-2">
+              <Button onClick={handleRefresh} variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-50">
+                <Filter className="w-4 h-4 mr-2" />
+                Refresh
               </Button>
-            </Link>
+              <Link to="/create-book">
+                <Button className="bg-black text-white hover:bg-gray-800">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add New Book
+                </Button>
+              </Link>
+            </div>
           </div>
 
           {/* Stats */}
