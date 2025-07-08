@@ -4,10 +4,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { BookOpen, User, Package, Tag } from 'lucide-react';
 import type { IBook } from '@/types';
-import { useAppDispatch } from '@/redux/hooks';
-import { deleteBook } from '@/redux/features/book/bookSlice';
 import { Link } from 'react-router-dom';
 import { UpdateBookModal } from './UpdateBookModal';
+import { useDeleteBookMutation } from '@/redux/api/baseApi';
 
 interface BookCardProps {
   props: IBook;
@@ -15,7 +14,19 @@ interface BookCardProps {
 
 const BookCard: React.FC<BookCardProps> = ({ props }) => {
   const { title, author, genre, description, isbn, copies, available } = props;
-  const dispatch = useAppDispatch();
+  const [deleteBook, { isLoading: isDeleting }] = useDeleteBookMutation();
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this book?')) {
+      try {
+        await deleteBook(props._id).unwrap();
+        alert('Book deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting book:', error);
+        alert('Failed to delete book. Please try again.');
+      }
+    }
+  };
 
   return (
     <Card className="w-full max-w-sm mx-auto bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 border-0 ring-1 ring-gray-200">
@@ -91,10 +102,10 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
             variant="destructive" 
             size="sm" 
             className="flex-1"
-            onClick={()=> dispatch(deleteBook(props._id))} // Assuming deleteBook is an action creator
-
+            onClick={handleDelete}
+            disabled={isDeleting}
           >
-            Delete
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </div>
       </CardFooter>

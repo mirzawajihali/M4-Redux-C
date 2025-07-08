@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Plus, Save } from 'lucide-react';
 // import { useAppDispatch } from '@/redux/hooks';
@@ -25,11 +26,23 @@ import { useAddBookMutation } from '@/redux/api/baseApi';
 const bookSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title must be less than 100 characters'),
   author: z.string().min(1, 'Author is required').max(50, 'Author name must be less than 50 characters'),
-  genre: z.string().min(1, 'Genre is required').max(30, 'Genre must be less than 30 characters'),
+  genre: z.enum(['FICTION', 'NON-FICTION', 'SCIENCE', 'HISTORY', 'BIOGRAPHY', 'FANTASY'], {
+    required_error: 'Please select a genre',
+    invalid_type_error: 'Please select a valid genre',
+  }),
   description: z.string().min(10, 'Description must be at least 10 characters').max(500, 'Description must be less than 500 characters'),
   isbn: z.string().min(10, 'ISBN must be at least 10 characters').max(25, 'ISBN must be less than 20 characters'),
   copies: z.coerce.number().min(1, 'Must have at least 1 copy').max(100, 'Cannot exceed 100 copies'),
 });
+
+const GENRE_OPTIONS = [
+  { value: 'FICTION', label: 'Fiction' },
+  { value: 'NON-FICTION', label: 'Non-Fiction' },
+  { value: 'SCIENCE', label: 'Science' },
+  { value: 'HISTORY', label: 'History' },
+  { value: 'BIOGRAPHY', label: 'Biography' },
+  { value: 'FANTASY', label: 'Fantasy' },
+] as const;
 
 type BookFormData = z.infer<typeof bookSchema>;
 
@@ -42,7 +55,7 @@ const AddBooks: React.FC = () => {
     defaultValues: {
       title: '',
       author: '',
-      genre: '',
+      genre: 'FICTION',
       description: '',
       isbn: '',
       copies: 1,
@@ -154,14 +167,21 @@ const AddBooks: React.FC = () => {
                         Genre <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="e.g., Fiction, Non-fiction, Mystery"
-                          {...field}
-                          className="focus:ring-2 focus:ring-black focus:border-black"
-                        />
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <SelectTrigger className="focus:ring-2 focus:ring-black focus:border-black">
+                            <SelectValue placeholder="Select a genre" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {GENRE_OPTIONS.map((genre) => (
+                              <SelectItem key={genre.value} value={genre.value}>
+                                {genre.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormDescription className="text-xs text-gray-500">
-                        The genre or category of the book
+                        Select the genre or category of the book
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

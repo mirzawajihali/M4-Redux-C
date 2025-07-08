@@ -15,8 +15,7 @@ import { Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useAppDispatch } from "@/redux/hooks";
-import { updateBook } from "@/redux/features/book/bookSlice";
+import { useUpdateBookMutation } from "@/redux/api/baseApi";
 import type { IBook } from "@/types";
 import { useState } from "react";
 
@@ -24,7 +23,10 @@ import { useState } from "react";
 const updateBookSchema = z.object({
   title: z.string().min(1, 'Title is required').max(100, 'Title must be less than 100 characters'),
   author: z.string().min(1, 'Author is required').max(50, 'Author name must be less than 50 characters'),
-  genre: z.string().min(1, 'Genre is required').max(30, 'Genre must be less than 30 characters'),
+  genre: z.enum(['FICTION', 'NON-FICTION', 'SCIENCE', 'HISTORY', 'BIOGRAPHY', 'FANTASY'], {
+    required_error: 'Please select a genre',
+    invalid_type_error: 'Please select a valid genre',
+  }),
   description: z.string().min(10, 'Description must be at least 10 characters').max(500, 'Description must be less than 500 characters'),
   isbn: z.string().min(10, 'ISBN must be at least 10 characters').max(25, 'ISBN must be less than 20 characters'),
   copies: z.coerce.number().min(0, 'Copies cannot be negative').max(100, 'Cannot exceed 100 copies'),
@@ -39,7 +41,7 @@ interface UpdateBookModalProps {
 
 export function UpdateBookModal({ book }: UpdateBookModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const dispatch = useAppDispatch();
+  const [updateBook, { isLoading: isUpdating }] = useUpdateBookMutation();
 
   const {
     register,
@@ -51,7 +53,7 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
     defaultValues: {
       title: book.title,
       author: book.author,
-      genre: book.genre,
+      genre: book.genre as 'FICTION' | 'NON-FICTION' | 'SCIENCE' | 'HISTORY' | 'BIOGRAPHY' | 'FANTASY',
       description: book.description,
       isbn: book.isbn,
       copies: book.copies,
@@ -59,16 +61,22 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
     },
   });
 
-  const onSubmit = (data: UpdateBookFormData) => {
-    const updatedBook: IBook = {
-      ...book,
-      ...data,
-      available: data.copies > 0,
-    };
+  const onSubmit = async (data: UpdateBookFormData) => {
+    try {
+      const updatedData = {
+        id: book._id,
+        ...data,
+        available: data.copies > 0,
+      };
 
-    dispatch(updateBook(updatedBook));
-    setIsOpen(false);
-    reset();
+      await updateBook(updatedData).unwrap();
+      setIsOpen(false);
+      reset();
+      alert('Book updated successfully!');
+    } catch (error) {
+      console.error('Error updating book:', error);
+      alert('Failed to update book. Please try again.');
+    }
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -124,7 +132,7 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
               <Input
                 id="genre"
                 {...register("genre")}
-                placeholder="Enter book genre"
+                placeholder="Enter genre: FICTION, NON-FICTION, SCIENCE, HISTORY, BIOGRAPHY, FANTASY"
               />
               {errors.genre && (
                 <p className="text-sm text-red-500">{errors.genre.message}</p>
@@ -200,8 +208,8 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Updating..." : "Update Book"}
+            <Button type="submit" disabled={isSubmitting || isUpdating}>
+              {isSubmitting || isUpdating ? "Updating..." : "Update Book"}
             </Button>
           </DialogFooter>
         </form>
