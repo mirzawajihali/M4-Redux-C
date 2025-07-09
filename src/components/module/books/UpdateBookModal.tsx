@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useUpdateBookMutation } from "@/redux/api/baseApi";
 import type { IBook } from "@/types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
 
 // Form validation schema for updating books
@@ -62,6 +62,19 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
     },
   });
 
+  // Update form values when book prop changes
+  useEffect(() => {
+    reset({
+      title: book.title,
+      author: book.author,
+      genre: book.genre as 'FICTION' | 'NON-FICTION' | 'SCIENCE' | 'HISTORY' | 'BIOGRAPHY' | 'FANTASY',
+      description: book.description,
+      isbn: book.isbn,
+      copies: book.copies,
+      available: book.available,
+    });
+  }, [book, reset]);
+
   const onSubmit = async (data: UpdateBookFormData) => {
     try {
       const updatedData = {
@@ -82,8 +95,17 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
-    if (!open) {
-      reset();
+    if (open) {
+      // Reset form with current book values when opening
+      reset({
+        title: book.title,
+        author: book.author,
+        genre: book.genre as 'FICTION' | 'NON-FICTION' | 'SCIENCE' | 'HISTORY' | 'BIOGRAPHY' | 'FANTASY',
+        description: book.description,
+        isbn: book.isbn,
+        copies: book.copies,
+        available: book.available,
+      });
     }
   };
 
@@ -135,11 +157,19 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
             {/* Genre */}
             <div className="space-y-2">
               <Label htmlFor="genre">Genre *</Label>
-              <Input
+              <select
                 id="genre"
                 {...register("genre")}
-                placeholder="Enter genre: FICTION, NON-FICTION, SCIENCE, HISTORY, BIOGRAPHY, FANTASY"
-              />
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="">Select a genre</option>
+                <option value="FICTION">Fiction</option>
+                <option value="NON-FICTION">Non-Fiction</option>
+                <option value="SCIENCE">Science</option>
+                <option value="HISTORY">History</option>
+                <option value="BIOGRAPHY">Biography</option>
+                <option value="FANTASY">Fantasy</option>
+              </select>
               {errors.genre && (
                 <p className="text-sm text-red-500">{errors.genre.message}</p>
               )}

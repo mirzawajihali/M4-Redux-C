@@ -7,8 +7,8 @@ import type { IBook } from '@/types';
 import { Link } from 'react-router-dom';
 import { UpdateBookModal } from './UpdateBookModal';
 import { BorrowBookModal } from './BorrowBookModal';
-import { useDeleteBookMutation } from '@/redux/api/baseApi';
-import { toast } from 'react-toastify';
+
+import { DeleteBookModal } from './DeleteBookModal';
 
 interface BookCardProps {
   props: IBook;
@@ -16,20 +16,8 @@ interface BookCardProps {
 
 const BookCard: React.FC<BookCardProps> = ({ props }) => {
   const { title, author, genre, description, isbn, copies, available } = props;
-  const [deleteBook, { isLoading: isDeleting }] = useDeleteBookMutation();
+  
 
-
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this book?')) {
-      try {
-        await deleteBook(props._id).unwrap();
-        toast.success('Book deleted successfully!');
-      } catch (error) {
-        console.error('Error deleting book:', error);
-        toast.error('Failed to delete book. Please try again.');
-      }
-    }
-  };
 
   return (
     <Card className="w-full max-w-sm mx-auto bg-white shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-gray-300 h-full flex flex-col">
@@ -94,15 +82,7 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
                 Details
               </Button>
             </Link>
-            <Button 
-              variant="destructive" 
-              size="sm" 
-              className="w-full bg-red-500 hover:bg-red-600 text-white"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </Button>
+            <DeleteBookModal book={props} />
           </div>
         </div>
       </CardFooter>

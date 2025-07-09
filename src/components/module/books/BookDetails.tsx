@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { User, Package, Tag, ArrowLeft} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
-import { useDeleteBookMutation, useGetBookByIdQuery } from '@/redux/api/baseApi';
+import { useGetBookByIdQuery } from '@/redux/api/baseApi';
 import { BorrowBookModal } from './BorrowBookModal';
-import { toast } from 'react-toastify';
 import { UpdateBookModal } from './UpdateBookModal';
+import { DeleteBookModal } from './DeleteBookModal';
 
 const BookDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -20,7 +20,6 @@ const BookDetails: React.FC = () => {
   });
  
   const book = bookResponse?.data;
-  const [deleteBookMutation, { isLoading: isDeleting }] = useDeleteBookMutation();
 
   // Loading state
   if (isLoading) {
@@ -58,19 +57,6 @@ const BookDetails: React.FC = () => {
     );
   }
  const {  title, author, genre, description, isbn, copies, available } = book;
-
- const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this book?')) {
-      try {
-        await deleteBookMutation(id!).unwrap();
-        toast.success('Book deleted successfully!');
-        navigate('/'); // Navigate back to books list after deletion
-      } catch (error) {
-        console.error('Error deleting book:', error);
-        toast.error('Failed to delete book. Please try again.');
-      }
-    }
-  };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -150,14 +136,7 @@ const BookDetails: React.FC = () => {
             <div className="grid grid-cols-3 gap-2">
                        <BorrowBookModal book={book} />
                        <UpdateBookModal book={book}/>
-                        <Button 
-              variant="destructive" 
-              className="w-full sm:w-auto"
-              onClick={handleDelete}
-              disabled={isDeleting}
-            >
-              {isDeleting ? 'Deleting...' : 'Delete Book'}
-            </Button>
+                       <DeleteBookModal book={book} />
                      </div>
            
           </div>
