@@ -2,12 +2,12 @@ import React from 'react';
 import { useGetBorrowSummaryQuery, extractBorrowSummary } from '@/redux/api/baseApi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { BookOpen, Package, RefreshCw, AlertCircle } from 'lucide-react';
+
+import { BookOpen, Package,  AlertCircle } from 'lucide-react';
 import type { IBorrowSummary } from '@/types';
 
 const BorrowSummary: React.FC = () => {
-  const { data: borrowData, isLoading, isError, error, refetch } = useGetBorrowSummaryQuery(undefined, {
+  const { data: borrowData, isLoading, isError, error} = useGetBorrowSummaryQuery(undefined, {
     // Refetch every 30 seconds to ensure data is fresh
     pollingInterval: 30000,
     // Refetch on window focus
@@ -44,10 +44,7 @@ const BorrowSummary: React.FC = () => {
               <p className="text-red-600 mb-4">
                 Failed to load borrow summary. Please try again.
               </p>
-              <Button onClick={() => refetch()} variant="outline">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Try Again
-              </Button>
+            
             </div>
           </div>
         </div>
@@ -70,10 +67,7 @@ const BorrowSummary: React.FC = () => {
           <p className="text-sm text-gray-500 mb-4">
             Data retrieved from aggregation API showing total quantities per book
           </p>
-          <Button onClick={() => refetch()} variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh Data
-          </Button>
+         
         </div>
 
        
