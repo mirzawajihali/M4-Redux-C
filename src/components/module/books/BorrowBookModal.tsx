@@ -121,7 +121,7 @@ export function BorrowBookModal({ book }: BorrowBookModalProps) {
         <Button 
           variant="default" 
           size="sm" 
-          className="flex-1"
+          className="w-full"
           disabled={!book.available || book.copies === 0}
         >
           <BookOpen className="w-4 h-4 mr-2" />

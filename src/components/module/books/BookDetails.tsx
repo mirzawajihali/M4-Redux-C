@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom';
 import { useDeleteBookMutation, useGetBookByIdQuery } from '@/redux/api/baseApi';
 import { BorrowBookModal } from './BorrowBookModal';
 import { toast } from 'react-toastify';
+import { UpdateBookModal } from './UpdateBookModal';
 
 const BookDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -123,7 +124,7 @@ const BookDetails: React.FC = () => {
             <div className="md:col-span-2 space-y-4">
               <div>
                 <h3 className="font-semibold text-gray-800 mb-2">Description</h3>
-                <p className="text-gray-700">{description}</p>
+                <p className="text-gray-700 leading-relaxed text-justify break-words whitespace-pre-wrap">{description}</p>
               </div>
              
             </div>
@@ -145,17 +146,20 @@ const BookDetails: React.FC = () => {
         </CardContent>
         
         <CardFooter className="pt-4 border-t">
-          <div className="flex flex-col sm:flex-row gap-3 w-full">
-            <BorrowBookModal book={book} />
-           
-            <Button 
+          <div className="flex flex-col justify-center sm:flex-row gap-3 w-full">
+            <div className="grid grid-cols-3 gap-2">
+                       <BorrowBookModal book={book} />
+                       <UpdateBookModal book={book}/>
+                        <Button 
               variant="destructive" 
-              className="flex-1"
+              className="w-full sm:w-auto"
               onClick={handleDelete}
               disabled={isDeleting}
             >
               {isDeleting ? 'Deleting...' : 'Delete Book'}
             </Button>
+                     </div>
+           
           </div>
         </CardFooter>
       </Card>

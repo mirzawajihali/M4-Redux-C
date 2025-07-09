@@ -90,8 +90,13 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="p-2">
-          <Pencil className="w-4 h-4" /> Update Book
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          className="w-full bg-blue-100 hover:bg-blue-200 text-blue-800 border border-blue-300"
+        >
+          <Pencil className="w-4 h-4 mr-2" />
+          Update
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
