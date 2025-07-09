@@ -17,13 +17,14 @@ import { z } from "zod";
 import { useBorrowBookMutation } from "@/redux/api/baseApi";
 import type { IBook, IBorrowForm } from "@/types";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Form validation schema for borrowing books
-const createBorrowBookSchema = (maxCopies: number) => z.object({
+const createBorrowBookSchema = () => z.object({
   book: z.string().min(1, 'Book ID is required'),
   quantity: z.coerce.number()
-    .min(1, 'Quantity must be at least 1')
-    .max(Math.min(maxCopies, 10), `Cannot borrow more than ${Math.min(maxCopies, 10)} copies`),
+    .min(1, 'Quantity must be at least 1'),
+    
   dueDate: z.string().min(1, 'Due date is required'),
 });
 
@@ -40,9 +41,10 @@ interface BorrowBookModalProps {
 export function BorrowBookModal({ book }: BorrowBookModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [borrowBook, { isLoading: isBorrowing }] = useBorrowBookMutation();
+  const navigate = useNavigate();
 
   // Create schema based on available copies
-  const borrowBookSchema = createBorrowBookSchema(book.copies);
+  const borrowBookSchema = createBorrowBookSchema();
 
   const {
     register,
@@ -86,6 +88,7 @@ export function BorrowBookModal({ book }: BorrowBookModalProps) {
       // Reset form and close modal
       reset();
       setIsOpen(false);
+      navigate('/borrow-summary')
     } catch (error: unknown) {
       console.error('Error borrowing book:', error);
       

@@ -2,24 +2,37 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, User, Package, Tag, ArrowLeft} from 'lucide-react';
-import type { IBook } from '@/types';
-import { useAppDispatch, useAppSelector } from '@/redux/hooks';
-import { deleteBook, selectBook } from '@/redux/features/book/bookSlice';
+import { User, Package, Tag, ArrowLeft} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import { useDeleteBookMutation, useGetBookByIdQuery } from '@/redux/api/baseApi';
+import { BorrowBookModal } from './BorrowBookModal';
 
 const BookDetails: React.FC = () => {
-  
-  const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   
-  const books = useAppSelector(selectBook);
+  const { data: bookResponse, isLoading, error } = useGetBookByIdQuery(id!, {
+    skip: !id,
+    pollingInterval: 30000,
+  });
  
-  const book = books.find((book: IBook) => book._id === id);
+  const book = bookResponse?.data;
+  const [deleteBookMutation, { isLoading: isDeleting }] = useDeleteBookMutation();
 
-   if (!book) {
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center py-12">
+          <p className="text-gray-600">Loading book details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !book) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Button 
@@ -44,10 +57,16 @@ const BookDetails: React.FC = () => {
   }
  const {  title, author, genre, description, isbn, copies, available } = book;
 
-  const handleDelete = () => {
-    if (id && window.confirm('Are you sure you want to delete this book?')) {
-      dispatch(deleteBook(id));
-      navigate('/');
+ const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this book?')) {
+      try {
+        await deleteBookMutation(id!).unwrap();
+        alert('Book deleted successfully!');
+        navigate('/'); // Navigate back to books list after deletion
+      } catch (error) {
+        console.error('Error deleting book:', error);
+        alert('Failed to delete book. Please try again.');
+      }
     }
   };
 
@@ -113,17 +132,11 @@ const BookDetails: React.FC = () => {
                 <h3 className="font-semibold text-gray-800 mb-3">Book Status</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Total Copies</span>
+                    <span className="text-gray-600">Total Copies available</span>
                     <span className="font-medium">{copies}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Available Now</span>
-                    <span className="font-medium">{available ? copies : 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">On Loan</span>
-                    <span className="font-medium">{copies - (available ? copies : 0)}</span>
-                  </div>
+              
+                  
                 </div>
               </div>
             </div>
@@ -132,21 +145,15 @@ const BookDetails: React.FC = () => {
         
         <CardFooter className="pt-4 border-t">
           <div className="flex flex-col sm:flex-row gap-3 w-full">
-            <Button 
-              variant="default" 
-              className="flex-1"
-              disabled={!available}
-            >
-              <BookOpen className="w-4 h-4 mr-2" />
-              Borrow This Book
-            </Button>
+            <BorrowBookModal book={book} />
            
             <Button 
               variant="destructive" 
               className="flex-1"
-             onClick={handleDelete}
+              onClick={handleDelete}
+              disabled={isDeleting}
             >
-              Delete Book
+              {isDeleting ? 'Deleting...' : 'Delete Book'}
             </Button>
           </div>
         </CardFooter>

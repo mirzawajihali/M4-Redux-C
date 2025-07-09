@@ -64,10 +64,13 @@ const BorrowSummary: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Borrowed Books Summary</h1>
-          <p className="text-gray-600 text-lg">
-            Overview of all currently borrowed books from our library
+          <p className="text-gray-600 text-lg mb-2">
+            Aggregated view of all currently borrowed books from our library
           </p>
-          <Button onClick={() => refetch()} variant="outline" size="sm" className="mt-4">
+          <p className="text-sm text-gray-500 mb-4">
+            Data retrieved from aggregation API showing total quantities per book
+          </p>
+          <Button onClick={() => refetch()} variant="outline" size="sm">
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh Data
           </Button>
@@ -87,35 +90,60 @@ const BorrowSummary: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Package className="w-5 h-5 mr-2" />
-                Borrowed Books Details
+                Borrowed Books Summary
               </CardTitle>
               <CardDescription>
-                Complete list of all borrowed books with quantities
+                List of books that have been borrowed with total quantities from aggregation API
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              {/* Table Header */}
+              <div className="grid grid-cols-3 gap-4 p-4 bg-gray-100 rounded-t-lg border-b-2 border-gray-200 font-semibold text-gray-700">
+                <div>Book Title</div>
+                <div>ISBN</div>
+                <div className="text-center">Total Quantity Borrowed</div>
+              </div>
+              
+              {/* Table Body */}
+              <div className="space-y-0">
                 {borrowSummary.map((item, index) => (
                   <div 
                     key={index}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                    className="grid grid-cols-3 gap-4 p-4 border-b border-gray-200 hover:bg-gray-50 transition-colors"
                   >
+                    {/* Book Title */}
                     <div className="flex-1">
-                      <h3 className="font-semibold text-gray-900 mb-1">
+                      <h3 className="font-medium text-gray-900">
                         {item.book.title}
                       </h3>
-                      <p className="text-sm text-gray-600 font-mono">
-                        ISBN: {item.book.isbn}
-                      </p>
                     </div>
-                    <div className="text-right">
-                      <Badge variant="secondary" className="text-lg px-3 py-1">
+                    
+                    {/* ISBN */}
+                    <div className="font-mono text-sm text-gray-600">
+                      {item.book.isbn}
+                    </div>
+                    
+                    {/* Total Quantity */}
+                    <div className="text-center">
+                      <Badge variant="secondary" className="px-3 py-1">
                         <Package className="w-4 h-4 mr-1" />
-                        {item.totalQuantity} {item.totalQuantity === 1 ? 'copy' : 'copies'}
+                        {item.totalQuantity}
                       </Badge>
                     </div>
                   </div>
                 ))}
+              </div>
+              
+              {/* Summary Stats */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-blue-700">
+                    <strong>Summary:</strong> {borrowSummary.length} unique books borrowed
+                  </div>
+                  <div className="text-sm text-blue-700">
+                    <strong>Total copies borrowed:</strong> {borrowSummary.reduce((total, item) => total + item.totalQuantity, 0)}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>
