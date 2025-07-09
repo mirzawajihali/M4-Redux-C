@@ -17,6 +17,7 @@ import { z } from "zod";
 import { useBorrowBookMutation } from "@/redux/api/baseApi";
 import type { IBook, IBorrowForm } from "@/types";
 import { useState } from "react";
+import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 
 // Form validation schema for borrowing books
@@ -43,7 +44,6 @@ export function BorrowBookModal({ book }: BorrowBookModalProps) {
   const [borrowBook, { isLoading: isBorrowing }] = useBorrowBookMutation();
   const navigate = useNavigate();
 
-  // Create schema based on available copies
   const borrowBookSchema = createBorrowBookSchema();
 
   const {
@@ -57,21 +57,12 @@ export function BorrowBookModal({ book }: BorrowBookModalProps) {
     defaultValues: {
       book: book._id,
       quantity: 1,
-      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 14 days from now
+      dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], 
     },
   });
 
   const onSubmit = async (data: BorrowBookFormData) => {
-    // Check if there are enough copies available
-    if (book.copies === 0) {
-      alert('This book is currently out of stock and cannot be borrowed.');
-      return;
-    }
     
-    if (data.quantity > book.copies) {
-      alert(`Only ${book.copies} copies are available. Please reduce the quantity.`);
-      return;
-    }
 
     try {
       const borrowData: IBorrowForm = {
@@ -83,21 +74,19 @@ export function BorrowBookModal({ book }: BorrowBookModalProps) {
       await borrowBook(borrowData).unwrap();
       
       // Show success message
-      alert(`Successfully borrowed ${data.quantity} copy(ies) of "${book.title}"!`);
+      toast.success(`Successfully borrowed ${data.quantity} copy(ies) of "${book.title}"!`);
       
-      // Reset form and close modal
+    
       reset();
       setIsOpen(false);
       navigate('/borrow-summary')
     } catch (error: unknown) {
       console.error('Error borrowing book:', error);
       
-      // Log the full error for debugging
       if (error && typeof error === 'object' && 'data' in error) {
         console.log('Error data:', (error as { data: unknown }).data);
       }
-      
-      // Extract error message from response
+
       let errorMessage = 'Failed to borrow book. Please try again.';
       
       if (error && typeof error === 'object' && 'data' in error) {
@@ -109,19 +98,19 @@ export function BorrowBookModal({ book }: BorrowBookModalProps) {
         errorMessage = String((error as { message: string }).message);
       }
       
-      alert(`Failed to borrow book: ${errorMessage}`);
+      toast.error(`Failed to borrow book: ${errorMessage}`);
     }
   };
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (open) {
-      // Reset form when opening
+     
       setValue('book', book._id);
       setValue('quantity', 1);
       setValue('dueDate', new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
     } else {
-      // Reset form when closing
+     
       reset();
     }
   };

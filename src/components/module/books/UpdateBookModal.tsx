@@ -18,6 +18,7 @@ import { z } from "zod";
 import { useUpdateBookMutation } from "@/redux/api/baseApi";
 import type { IBook } from "@/types";
 import { useState } from "react";
+import { toast } from 'react-toastify';
 
 // Form validation schema for updating books
 const updateBookSchema = z.object({
@@ -72,10 +73,10 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
       await updateBook(updatedData).unwrap();
       setIsOpen(false);
       reset();
-      alert('Book updated successfully!');
+      toast.success('Book updated successfully!');
     } catch (error) {
       console.error('Error updating book:', error);
-      alert('Failed to update book. Please try again.');
+      toast.error('Failed to update book. Please try again.');
     }
   };
 
@@ -186,15 +187,7 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
             <div className="space-y-2">
               <Label htmlFor="available">available</Label>
               <div className="flex items-center space-x-2">
-                <input
-                  id="available"
-                  type="checkbox"
-                  {...register("available")}
-                  className="h-4 w-4 rounded border-gray-300"
-                />
-                <span className="text-sm text-gray-600">
-                  Available for borrowing
-                </span>
+               
               </div>
               <p className="text-xs text-gray-500">
                 Note: available will be automatically set based on the number of copies

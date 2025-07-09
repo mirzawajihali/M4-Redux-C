@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { UpdateBookModal } from './UpdateBookModal';
 import { BorrowBookModal } from './BorrowBookModal';
 import { useDeleteBookMutation } from '@/redux/api/baseApi';
+import { toast } from 'react-toastify';
 
 interface BookCardProps {
   props: IBook;
@@ -21,10 +22,10 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
     if (window.confirm('Are you sure you want to delete this book?')) {
       try {
         await deleteBook(props._id).unwrap();
-        alert('Book deleted successfully!');
+        toast.success('Book deleted successfully!');
       } catch (error) {
         console.error('Error deleting book:', error);
-        alert('Failed to delete book. Please try again.');
+        toast.error('Failed to delete book. Please try again.');
       }
     }
   };

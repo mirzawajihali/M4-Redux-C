@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { toast } from 'react-toastify';
 import {
   Form,
   FormControl,
@@ -18,8 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Plus, Save } from 'lucide-react';
-// import { useAppDispatch } from '@/redux/hooks';
-// import { addBook } from '@/redux/features/book/bookSlice';
+
 import { useAddBookMutation } from '@/redux/api/baseApi';
 
 // Form validation schema
@@ -73,7 +73,7 @@ const AddBooks: React.FC = () => {
       await addBook(newBook).unwrap();
       
       form.reset();
-      alert('Book added successfully!');
+      toast.success('Book added successfully!');
       
       // Wait a bit for the cache to update before navigating
       setTimeout(() => {
@@ -81,7 +81,7 @@ const AddBooks: React.FC = () => {
       }, 100);
     } catch (error) {
       console.error('Error adding book:', error);
-      alert('Failed to add book. Please try again.');
+      toast.error('Failed to add book. Please try again.');
     }
   };
 

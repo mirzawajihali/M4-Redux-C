@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { useDeleteBookMutation, useGetBookByIdQuery } from '@/redux/api/baseApi';
 import { BorrowBookModal } from './BorrowBookModal';
+import { toast } from 'react-toastify';
 
 const BookDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -61,11 +62,11 @@ const BookDetails: React.FC = () => {
     if (window.confirm('Are you sure you want to delete this book?')) {
       try {
         await deleteBookMutation(id!).unwrap();
-        alert('Book deleted successfully!');
+        toast.success('Book deleted successfully!');
         navigate('/'); // Navigate back to books list after deletion
       } catch (error) {
         console.error('Error deleting book:', error);
-        alert('Failed to delete book. Please try again.');
+        toast.error('Failed to delete book. Please try again.');
       }
     }
   };
