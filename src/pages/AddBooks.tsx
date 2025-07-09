@@ -19,6 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BookOpen, Plus, Save } from 'lucide-react';
+import { extractErrorMessage } from '@/lib/utils';
 
 import { useAddBookMutation } from '@/redux/api/baseApi';
 
@@ -79,9 +80,14 @@ const AddBooks: React.FC = () => {
       setTimeout(() => {
         navigate('/');
       }, 100);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error adding book:', error);
-      toast.error('Failed to add book. Please try again.');
+      
+      // Extract specific error message from backend response
+      const errorMessage = extractErrorMessage(error, 'Failed to add book. Please try again.');
+      
+      // Show specific error message to user
+      toast.error(errorMessage);
     }
   };
 

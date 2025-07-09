@@ -19,6 +19,7 @@ import { useUpdateBookMutation } from "@/redux/api/baseApi";
 import type { IBook } from "@/types";
 import { useState, useEffect } from "react";
 import { toast } from 'react-toastify';
+import { extractErrorMessage } from '@/lib/utils';
 
 // Form validation schema for updating books
 const updateBookSchema = z.object({
@@ -87,9 +88,10 @@ export function UpdateBookModal({ book }: UpdateBookModalProps) {
       setIsOpen(false);
       reset();
       toast.success('Book updated successfully!');
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error updating book:', error);
-      toast.error('Failed to update book. Please try again.');
+      const errorMessage = extractErrorMessage(error, 'Failed to update book. Please try again.');
+      toast.error(errorMessage);
     }
   };
 

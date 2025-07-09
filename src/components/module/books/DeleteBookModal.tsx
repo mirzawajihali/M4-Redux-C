@@ -15,6 +15,7 @@ import { useDeleteBookMutation } from "@/redux/api/baseApi";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import type { IBook } from "@/types";
+import { extractErrorMessage } from '@/lib/utils';
 
 interface DeleteBookModalProps {
   book: IBook;
@@ -31,9 +32,10 @@ export function DeleteBookModal({ book }: DeleteBookModalProps) {
       toast.success('Book deleted successfully!');
       setIsOpen(false);
       navigate('/'); // Navigate back to books list after deletion
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error deleting book:', error);
-      toast.error('Failed to delete book. Please try again.');
+      const errorMessage = extractErrorMessage(error, 'Failed to delete book. Please try again.');
+      toast.error(errorMessage);
     }
   };
 

@@ -19,6 +19,7 @@ import type { IBook, IBorrowForm } from "@/types";
 import { useState } from "react";
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
+import { extractErrorMessage } from '@/lib/utils';
 
 // Form validation schema for borrowing books
 const createBorrowBookSchema = () => z.object({
@@ -83,22 +84,8 @@ export function BorrowBookModal({ book }: BorrowBookModalProps) {
     } catch (error: unknown) {
       console.error('Error borrowing book:', error);
       
-      if (error && typeof error === 'object' && 'data' in error) {
-        console.log('Error data:', (error as { data: unknown }).data);
-      }
-
-      let errorMessage = 'Failed to borrow book. Please try again.';
-      
-      if (error && typeof error === 'object' && 'data' in error) {
-        const errorData = (error as { data: unknown }).data;
-        if (errorData && typeof errorData === 'object' && 'message' in errorData) {
-          errorMessage = String((errorData as { message: string }).message);
-        }
-      } else if (error && typeof error === 'object' && 'message' in error) {
-        errorMessage = String((error as { message: string }).message);
-      }
-      
-      toast.error(`Failed to borrow book: ${errorMessage}`);
+      const errorMessage = extractErrorMessage(error, 'Failed to borrow book. Please try again.');
+      toast.error(errorMessage);
     }
   };
 
