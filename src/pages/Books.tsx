@@ -23,7 +23,7 @@ const Books: React.FC = () => {
   const currentFilter = useAppSelector(selectFilter);
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedGenre, setSelectedGenre] = useState('all');
+  
 
   // Manual refetch function
   const handleRefresh = () => {
@@ -72,21 +72,19 @@ const Books: React.FC = () => {
   console.log('API Response:', booksData);
   console.log('Extracted books:', books);
   
-  const genres = Array.from(new Set(books.map((book: IBook) => book.genre)));
-
   // Filter books based on search term, genre, and available
   const filteredBooks = books.filter((book: IBook) => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          book.author.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          book.genre.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesGenre = selectedGenre === 'all' || book.genre === selectedGenre;
+   
     
     const matchesavailable = currentFilter === 'all' || 
                                (currentFilter === 'available' && book.available) ||
                                (currentFilter === 'unavailable' && !book.available);
     
-    return matchesSearch && matchesGenre && matchesavailable;
+    return matchesSearch && matchesavailable;
   });
 
   const availableCount = books.filter((book: IBook) => book.available).length;
@@ -149,28 +147,8 @@ const Books: React.FC = () => {
               />
             </div>
 
-            {/* Genre Filter */}
-            <div className="flex gap-2 flex-wrap">
-              <Button
-                variant={selectedGenre === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedGenre('all')}
-                className={selectedGenre === 'all' ? 'bg-black text-white hover:bg-gray-800' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}
-              >
-                All Genres
-              </Button>
-              {genres.map((genre: string) => (
-                <Button
-                  key={genre}
-                  variant={selectedGenre === genre ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setSelectedGenre(genre)}
-                  className={selectedGenre === genre ? 'bg-black text-white hover:bg-gray-800' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}
-                >
-                  {genre}
-                </Button>
-              ))}
-            </div>
+         
+            
           </div>
 
           {/* available Filter */}

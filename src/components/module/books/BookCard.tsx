@@ -2,10 +2,11 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, User, Package, Tag } from 'lucide-react';
+import { User, Package, Tag } from 'lucide-react';
 import type { IBook } from '@/types';
 import { Link } from 'react-router-dom';
 import { UpdateBookModal } from './UpdateBookModal';
+import { BorrowBookModal } from './BorrowBookModal';
 import { useDeleteBookMutation } from '@/redux/api/baseApi';
 
 interface BookCardProps {
@@ -74,15 +75,7 @@ const BookCard: React.FC<BookCardProps> = ({ props }) => {
       
       <CardFooter className="pt-4">
         <div className="flex gap-2 flex-wrap w-full">
-          <Button 
-            variant="default" 
-            size="sm" 
-            className="flex-1"
-            disabled={!available}
-          >
-            <BookOpen className="w-4 h-4 mr-2" />
-            Borrow
-          </Button>
+          <BorrowBookModal book={props} />
          
           <div className='flex-1'>
               

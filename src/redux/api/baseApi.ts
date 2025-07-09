@@ -1,5 +1,5 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-import type { IBook, IBookForm } from '@/types';
+import type { IBook, IBookForm, IBorrow, IBorrowForm, IBorrowSummary } from '@/types';
 
 // Update this interface based on your actual backend response
 interface BooksResponse {
@@ -15,7 +15,20 @@ interface SingleBookResponse {
   data: IBook;
 }
 
+// Borrow response interfaces
+interface BorrowResponse {
+  success: boolean;
+  message: string;
+  data: IBorrow;
+}
 
+interface BorrowSummaryResponse {
+  success: boolean;
+  message: string;
+  data: IBorrowSummary[];
+}
+
+// Helper function to extract books from response
 export function extractBooks(response: BooksResponse | undefined): IBook[] {
   if (!response) {
     return [];
@@ -24,12 +37,20 @@ export function extractBooks(response: BooksResponse | undefined): IBook[] {
   return response?.data || [];
 }
 
+// Helper function to extract borrow summary from response
+export function extractBorrowSummary(response: BorrowSummaryResponse | undefined): IBorrowSummary[] {
+  if (!response) {
+    return [];
+  }
+  return response?.data || [];
+}
+
 export const baseApi = createApi({
   reducerPath: 'baseApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:5000/api', 
+    baseUrl: 'https://backend-m3-assignment.vercel.app/api', 
   }),
-  tagTypes: ['Book'],
+  tagTypes: ['Book', 'Borrow'],
   endpoints: (builder) => ({
     getBooks: builder.query<BooksResponse, void>({
       query: () => '/books',
@@ -80,6 +101,7 @@ export const baseApi = createApi({
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Book', id },
         { type: 'Book', id: 'LIST' },
+        { type: 'Borrow', id: 'LIST' }, // Also invalidate borrow summary since book availability might change
       ],
       // Optimistic update
       async onQueryStarted({ id, ...updatedBook }, { dispatch, queryFulfilled }) {
@@ -106,6 +128,7 @@ export const baseApi = createApi({
       invalidatesTags: (_result, _error, id) => [
         { type: 'Book', id },
         { type: 'Book', id: 'LIST' },
+        { type: 'Borrow', id: 'LIST' }, // Also invalidate borrow summary
       ],
       // Optimistic update
       async onQueryStarted(id, { dispatch, queryFulfilled }) {
@@ -123,6 +146,41 @@ export const baseApi = createApi({
         }
       },
     }),
+
+    // Borrow endpoints
+    borrowBook: builder.mutation<BorrowResponse, IBorrowForm>({
+      query: (borrowData) => ({
+        url: '/borrows',
+        method: 'POST',
+        body: borrowData,
+      }),
+      invalidatesTags: [
+        { type: 'Book', id: 'LIST' }, // Invalidate books list to update availability
+        { type: 'Borrow', id: 'LIST' }, // Invalidate borrow summary
+      ],
+      // Optimistic update for better UX
+      async onQueryStarted({ book: bookId, quantity }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          baseApi.util.updateQueryData('getBooks', undefined, (draft) => {
+            const book = draft.data?.find((book) => book._id === bookId);
+            if (book && book.copies >= quantity) {
+              book.copies -= quantity;
+              book.available = book.copies > 0;
+            }
+          })
+        );
+        try {
+          await queryFulfilled;
+        } catch {
+          // If the mutation fails, revert the optimistic update
+          patchResult.undo();
+        }
+      },
+    }),
+    getBorrowSummary: builder.query<BorrowSummaryResponse, void>({
+      query: () => '/borrows',
+      providesTags: [{ type: 'Borrow', id: 'LIST' }],
+    }),
   }),
 })
 
@@ -132,4 +190,6 @@ export const {
   useAddBookMutation,
   useUpdateBookMutation,
   useDeleteBookMutation,
+  useBorrowBookMutation,
+  useGetBorrowSummaryQuery,
 } = baseApi;

@@ -9,11 +9,7 @@ import { deleteBook, selectBook } from '@/redux/features/book/bookSlice';
 import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 
-interface BookDetailsProps {
-  book: IBook;
-}
-
-const BookDetails: React.FC<BookDetailsProps> = () => {
+const BookDetails: React.FC = () => {
   
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
